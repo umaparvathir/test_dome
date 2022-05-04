@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  db:
+    image: percona-server:8.0
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=test-dome
+      - MYSQL_ROOT_PASSWORD=WestWing
+    ports:
+      - '3306:3306'
+    volumes:
+      - db:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      
+  app1:
+    build: ./app1
+    ports:
+      - "5001:5000"
+  app2:
+    build: ./app2
+    ports:
+      - "5002:5000"
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - app1
+      - app2
+volumes:
+  db:
+    driver: local
